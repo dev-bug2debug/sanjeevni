@@ -1,0 +1,53 @@
+{% if code == 404 %}
+<script>
+    alert("{{message}}")
+</script>
+{% endif %}
+
+
+<html>
+    <head>
+        <meta charset="UTF-8"> 
+        <style>
+            table{
+                width: 50%;
+                margin-left:auto; 
+                margin-right:auto;
+                text-align: center;
+            }
+        </style>
+    </head>
+
+    <body>
+        <form action="/postsign/", method="post">
+            {% csrf_token %}
+            <table align="center">
+                <tr>
+                    <td>
+                        Email 
+                    </td>
+                    <td>
+                        <input type="email" name="email" label="email" placeholder="email">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Password 
+                    </td>
+                    <td>
+                        <input type="password" name="password" label="password" placeholder="password"><br><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                    <td>
+                        <input type="submit" value="SignIn">
+
+                    <button type="button" value="SignUp" onclick="location.href={% url 'signup' %}">signUp</button>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </body>
+</html>

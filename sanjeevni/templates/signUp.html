@@ -1,0 +1,68 @@
+{% if code == 404 %}
+<script>
+    alert("{{message}}")
+</script>
+{% endif %}
+
+
+<html>
+    <head>
+        <meta charset="UTF-8"> 
+        <style>
+            table{
+                width: 50%;
+                margin-left:auto; 
+                margin-right:auto;
+                text-align: center;
+            }
+        </style>
+    </head>
+
+    <body>
+        <form action="/postsignup/", method="post">
+            {% csrf_token %}
+            <table align="center">
+                <tr>
+                    <td>
+                       Name
+                    </td>
+                    <td>
+                        <input type="name" name="name" label="name" placeholder="name">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Email 
+                    </td>
+                    <td>
+                        <input type="email" name="email" label="email" placeholder="email">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Password 
+                    </td>
+                    <td>
+                        <input type="password" name="password" label="password" placeholder="password">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Confirm Password 
+                    </td>
+                    <td>
+                        <input type="password" name="cpassword" label="confirm password" placeholder="confirm password">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+
+                    </td>
+                    <td>
+                        <br>
+                        <button type="submit" value="SignUp" onclick="location.href={% url 'signup' %}">signUp</button>
+                    </td>
+                </tr>
+            </table>
+    </body>
+</html>
