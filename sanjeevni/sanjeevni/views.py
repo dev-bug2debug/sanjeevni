@@ -37,7 +37,7 @@ def labSignUp(request):
         message = "enter valid credentials pls try again"
         return HttpResponse({"message": message, "code": 404})
 
-def postsign(request):
+def labSignIn(request):
     email = request.POST.get("mail")
     passw = request.POST.get("pass")
     try:
