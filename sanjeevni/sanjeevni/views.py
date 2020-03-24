@@ -47,8 +47,9 @@ def labSignIn(request):
     except:
         return HttpResponse({"code": 404})
     print(user['idToken'])
-    return HttpResponse(user['idToken'])
+#     return HttpResponse(user['idToken'])
     session_id = user['idToken']     #this gives your app to a session for see the user is currently loged in
     request.session['uid'] = str(session_id)
+    return HttpResponse(request.session['uid'])
 
 
