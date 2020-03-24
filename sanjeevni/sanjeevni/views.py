@@ -28,7 +28,7 @@ def labSignUp(request):
         if str(password) == str(cpassword):
             user = authentication.create_user_with_email_and_password(email, password)
             uid = user['localId']
-            data = {"email": email, "status": "1"}
+            data = {"email": email, "status": "1","password":password}
             database.child("users").child(uid).child("labdetails").set(data)
             return HttpResponse({"message": "true", "code": 200})
         else:
@@ -40,11 +40,14 @@ def labSignUp(request):
 def labSignIn(request):
     email = request.POST.get("mail")
     passw = request.POST.get("pass")
+    # email="root0@gmail.com"
+    # passw="1234567890"
     try:
         user = authentication.sign_in_with_email_and_password(email, passw)
     except:
         return HttpResponse({"code": 404})
     print(user['idToken'])
+    return HttpResponse(user['idToken'])
     session_id = user['idToken']     #this gives your app to a session for see the user is currently loged in
     request.session['uid'] = str(session_id)
 
