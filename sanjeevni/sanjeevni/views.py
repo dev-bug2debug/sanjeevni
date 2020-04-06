@@ -7,6 +7,8 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 import json
 import time
+import os
+from pathlib import Path
 
 
 
@@ -25,6 +27,11 @@ firebase = pyrebase.initialize_app(firebaseConfig)
 
 authentication = firebase.auth()
 database = firebase.database()
+
+CURRENT_PATH = os.getcwd()
+PARENT_PATH = CURRENT_PATH
+print(os.path.exists(PARENT_PATH+'/data/tests.json'))
+print(CURRENT_PATH, PARENT_PATH)
 
 def signIn(request):
     return render(request, "signIn.html")
@@ -114,62 +121,89 @@ def api_signin(request):
       print(data)
       return JsonResponse(data)
 
+
+
+# ! POST /api/tests 
+# ! params [ type:string ]
+
+# ! Example POST {"type": "get" "test":"*"} for all tests might be slow
+
+# ! Response Format 
+# ! {"statusCode" : status_code, "message":message, 
+# ! "result":[testname:{
+# !                     { "doctor_data":   {"Category", "Code", "Method", "Report Availability", ...}, 
+# !                     "patient_data":    {"description", "title"} }}, ..., ... ...
+# !                     }
+# !          ]          
+# ! }
+
+# ! Example POST {"type": "get", "test":"*NAMES"} for all tests names only
+# ! Response Format {"statusCode" : status_code, "message":message, "result":LISTS_OF_TESTS}
+
+# ! Example POST {"type": "get", "test":"__TEST__NAME__"} details about the specific test
+# ! Response Format {"statusCode" : status_code, "message":message, 
+# !            "result":{
+# !                     { "doctor_data":   {"Category", "Code", "Method", "Report Availability", ...}, 
+# !                     "patient_data":    {"description", "title"} }}, ..., ... ...
+# !                     }
+# !          ]          
+# ! }
+
+
+# ! Example POST {"type": "update"}
+# ! Example POST {"type": "add"}
+
+
 @csrf_exempt
 @require_http_methods(["POST"])
-def apiTask(request):
+def apiTests(request):
   response = json.loads(request.body)
-  userId = response['userId']
+  # userId = response['userId']
   response["Access-Control-Allow-Origin"] = "*"
 
   try:
-    if response['type'] == 'add':
-      
-      for task_obj in response['tasks']:
-        task = task_obj['task']
-        priority = task_obj['priority']
-
-        ms = int(time.time()*1000.0)
-        data = {"task":task, "priority":str(priority), "status":str(0)}
-        database.child("todolist").child(userId).child(str(ms)).set(data)
-
-      message="OK"
-      json_data = {"statusCode": 200, "message":message,"tasks":response['tasks']}
-
-      return JsonResponse(data)
-
-    if response['type'] == 'get':
-      tasks_id = list(database.child("todolist").child(userId).get().val())
-      tasks = list(database.child("todolist").child(userId).get().val().values())
-      json_data = []
-      for _id in range(len(tasks_id)):
-        json_data.append({tasks_id[_id]:tasks[_id]})
-
-      message="OK"
-      dat = {"statusCode": 200, "message":message,"tasks":json_data}
-      
-      return JsonResponse(dat)
     
-    if response['type'] == 'delete':
-      for task_id in response['tasks']:
-        database.child("todolist").child(userId).child(task_id).remove()
+    if response['type'] == 'get':
+      # ! all tests with all data
+      if response['test'] == '*':
+        data = []
+        print(os.path.exists(PARENT_PATH+'/data/tests.json'))
+        with open(PARENT_PATH+'/data/tests.json', 'r') as f:
+          data = list(json.load(f))
+          f.close()
+        
+        if len(data) < len(database.child("tests").get().val()):
+          tests = list(list(database.child("tests").get().val().values()))
+          test_name = list(list(database.child("tests").get().val()))
+          test_temp = []
+          print(len(tests))
 
-      json_data = response['tasks']
-      message="OK"
-      dat = {"statusCode": 200, "message":message,"tasks":json_data}
+          for i in range(len(test_name)):
+            test_temp.append({test_name[i]:tests[i]})
+          
+          data = test_temp
+          with open(PARENT_PATH+'/data/tests.json', 'w') as f:
+            json.dump(data, f)
+            f.close()
 
-      return JsonResponse(dat)
+        # tests = json.dumps(tests)
+        message="OK"
+        dat = {"statusCode": 200, "message":message,"result": data}
+        return JsonResponse(dat)
 
-    if response['type'] == 'update':
-      for task_obj in response['tasks']:
-        key = list(response['tasks'][0].keys())[0]
-        task = task_obj[key]['task'] 
-        priority = task_obj[key]['priority']
-        update_data = {"task":task, "priority":str(priority), "status":str(0)}
-        database.child("todolist").child(userId).child(key).update(update_data)
-
-      message="OK"
-      json_data = {"statusCode": 200, "message":message,"tasks":response['tasks']}
-      return JsonResponse(json_data)
+      if response['test'] == '*NAMES':
+        tests = list(list(database.child("tests").get().val()))
+        # tests = json.dumps(tests)
+        message="OK"
+        dat = {"statusCode": 200, "message":message,"result": tests}
+        return JsonResponse(dat)
+    
+      if response['test'] != '':
+        tests = list(list(database.child("tests").child(response['test']).get().val().values()))
+        # tests = json.dumps(tests)
+        message="OK"
+        dat = {"statusCode": 200, "message":message,"result": tests}
+        return JsonResponse(dat)
     
   except:
     message = "Invalid Credentials"
@@ -177,3 +211,68 @@ def apiTask(request):
     dat = {"statusCode": 404, "message":message}
 
     return JsonResponse(dat)
+
+
+# @csrf_exempt
+# @require_http_methods(["POST"])
+# def apiTask(request):
+#   response = json.loads(request.body)
+#   userId = response['userId']
+#   response["Access-Control-Allow-Origin"] = "*"
+
+#   try:
+#     if response['type'] == 'add':
+      
+#       for task_obj in response['tasks']:
+#         task = task_obj['task']
+#         priority = task_obj['priority']
+
+#         ms = int(time.time()*1000.0)
+#         data = {"task":task, "priority":str(priority), "status":str(0)}
+#         database.child("todolist").child(userId).child(str(ms)).set(data)
+
+#       message="OK"
+#       json_data = {"statusCode": 200, "message":message,"tasks":response['tasks']}
+
+#       return JsonResponse(data)
+
+#     if response['type'] == 'get':
+#       tasks_id = list(database.child("todolist").child(userId).get().val())
+#       tasks = list(database.child("todolist").child(userId).get().val().values())
+#       json_data = []
+#       for _id in range(len(tasks_id)):
+#         json_data.append({tasks_id[_id]:tasks[_id]})
+
+#       message="OK"
+#       dat = {"statusCode": 200, "message":message,"tasks":json_data}
+      
+#       return JsonResponse(dat)
+    
+#     if response['type'] == 'delete':
+#       for task_id in response['tasks']:
+#         database.child("todolist").child(userId).child(task_id).remove()
+
+#       json_data = response['tasks']
+#       message="OK"
+#       dat = {"statusCode": 200, "message":message,"tasks":json_data}
+
+#       return JsonResponse(dat)
+
+#     if response['type'] == 'update':
+#       for task_obj in response['tasks']:
+#         key = list(response['tasks'][0].keys())[0]
+#         task = task_obj[key]['task'] 
+#         priority = task_obj[key]['priority']
+#         update_data = {"task":task, "priority":str(priority), "status":str(0)}
+#         database.child("todolist").child(userId).child(key).update(update_data)
+
+#       message="OK"
+#       json_data = {"statusCode": 200, "message":message,"tasks":response['tasks']}
+#       return JsonResponse(json_data)
+    
+#   except:
+#     message = "Invalid Credentials"
+#     code = 404
+#     dat = {"statusCode": 404, "message":message}
+
+#     return JsonResponse(dat)

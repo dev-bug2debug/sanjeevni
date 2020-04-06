@@ -26,5 +26,6 @@ urlpatterns = [
     path('signup/', views.signUp, name="signup"),
     path('postsignup/', views.postsignup),
     path('api/signin/', views.api_signin),
-    path('api/task', views.apiTask)
+    path('api/tests', views.apiTests)
+
 ]
