@@ -124,7 +124,7 @@ def api_signin(request):
 
 
 # ! POST /api/tests 
-# ! params [ type:string ]
+# ! params [ type:string, test:string ]
 
 # ! Example POST {"type": "get" "test":"*"} for all tests might be slow
 
