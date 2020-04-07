@@ -22,5 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('labSignIn/', views.labSignIn),
     path('labSignUp/', views.labSignUp),
+    path('testdata/', views.tests)
 
 ]
