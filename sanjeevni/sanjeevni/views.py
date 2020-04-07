@@ -53,3 +53,10 @@ def labSignIn(request):
     return HttpResponse(request.session['uid'])
 
 
+# this method give you the test data from database
+def tests(request):
+    testdata=database.child('tests').get().val()
+    # print(testdata)
+    return JsonResponse(testdata)
+
+
