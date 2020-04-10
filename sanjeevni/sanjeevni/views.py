@@ -197,6 +197,17 @@ def apiTests(request):
         message="OK"
         dat = {"statusCode": 200, "message":message,"result": tests}
         return JsonResponse(dat)
+
+# ! Test Json
+# ! {"type":"get", "uid":"user1", "test":"*UID"}
+      if response['test'] == '*UID':
+        uid = response['uid']
+        tests = list(database.child('diagnostic-centers').child(uid).child('tests').child('allowed').get().val())
+
+        message="OK"
+        dat = {"statusCode": 200, "message":message,"result": tests}
+        return JsonResponse(dat)
+
     
       if response['test'] != '':
         tests = list(list(database.child("tests").child(response['test']).get().val().values()))
@@ -204,6 +215,8 @@ def apiTests(request):
         message="OK"
         dat = {"statusCode": 200, "message":message,"result": tests}
         return JsonResponse(dat)
+
+        
 
 # ! Test Json
 # ! {"type":"post", "uid":"user1", "test":[" THROMBOTIC RISK SCREEN ", "\"NTx (COLLAGEN  CROSS-LINKED  N- TELOPEPTIDE), URINE", "\"ONCOMINE ACUTE MYELOID LEUKAEMIA (AML) PANEL", "(1, 3)-BETA-D-GLUCAN (BDG)", "(CA) CYFRA 21-1;  LUNG  CANCER  MARKER"]}
