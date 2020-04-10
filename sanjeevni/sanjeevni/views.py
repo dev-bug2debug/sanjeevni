@@ -204,7 +204,21 @@ def apiTests(request):
         message="OK"
         dat = {"statusCode": 200, "message":message,"result": tests}
         return JsonResponse(dat)
-    
+
+# ! Test Json
+# ! {"type":"post", "uid":"user1", "test":[" THROMBOTIC RISK SCREEN ", "\"NTx (COLLAGEN  CROSS-LINKED  N- TELOPEPTIDE), URINE", "\"ONCOMINE ACUTE MYELOID LEUKAEMIA (AML) PANEL", "(1, 3)-BETA-D-GLUCAN (BDG)", "(CA) CYFRA 21-1;  LUNG  CANCER  MARKER"]}
+
+    if response['type'] == 'post':
+      uid = response['uid']
+      test = response['test']
+      database.child("diagnostic-centers").child(uid).child('tests').child('allowed').set(test);
+
+      message="OK"
+      dat = {"statusCode": 200, "message":message,"result": "testes added"}
+      return JsonResponse(dat)
+
+
+
   except:
     message = "Invalid Credentials"
     code = 404
